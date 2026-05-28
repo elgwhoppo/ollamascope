@@ -11,7 +11,8 @@ Point clients at `http://localhost:11435` instead of `http://localhost:11434`.
 
 ## What It Tracks
 
-- Requests to `/api/chat`, `/api/generate`, `/v1/chat/completions`, and `/v1/completions`
+- Requests to `/api/chat`, `/api/generate`, `/v1/chat/completions`, and `/v1/completions` (usage tracked)
+- Passthrough for `GET /v1/models` (model list for OpenAI-compatible clients; not tracked)
 - Prompt, completion, and total tokens when Ollama returns token counts
 - Duration and tokens per second
 - Streaming and non-streaming requests

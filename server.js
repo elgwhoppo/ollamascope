@@ -8,12 +8,14 @@ const appPort = Number(process.env.APP_PORT || 3000);
 const proxyPort = Number(process.env.PROXY_PORT || 11435);
 const appHost = process.env.APP_HOST || "0.0.0.0";
 const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || "http://ollama:11434";
-const supportedEndpoints = new Set([
+const trackedEndpoints = new Set([
   "/api/chat",
   "/api/generate",
   "/v1/chat/completions",
   "/v1/completions"
 ]);
+const passthroughEndpoints = new Set(["/v1/models"]);
+const supportedEndpoints = new Set([...trackedEndpoints, ...passthroughEndpoints]);
 
 const app = next({ dev, hostname: "0.0.0.0", port: appPort });
 const handle = app.getRequestHandler();
@@ -122,6 +124,10 @@ async function proxyRequest(req, res) {
     requestBody?.stream === true ||
     contentType.includes("text/event-stream") ||
     responseText.split(/\r?\n/).filter(Boolean).length > 1;
+
+  if (!trackedEndpoints.has(url.pathname)) {
+    return;
+  }
 
   try {
     recordUsage({
