@@ -1,0 +1,27 @@
+services:
+  ollamascope:
+    build: .
+    image: ollamascope
+    container_name: ollamascope
+    restart: unless-stopped
+    cpus: "0.50"
+    mem_limit: 384m
+    pids_limit: 128
+    environment:
+      NODE_OPTIONS: --max-old-space-size=256
+      APP_PORT: ${APP_PORT:-3000}
+      PROXY_PORT: ${PROXY_PORT:-11435}
+      APP_HOST: ${APP_HOST:-0.0.0.0}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      DATA_DIR: /data
+      DATABASE_PATH: /data/ollamascope.sqlite
+    ports:
+      - "${APP_PORT:-3000}:3000"
+      - "${PROXY_PORT:-11435}:11435"
+    volumes:
+      - ollamascope-data:/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  ollamascope-data:
