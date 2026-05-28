@@ -7,12 +7,44 @@ It listens on:
 - Dashboard: `http://localhost:3000`
 - Ollama proxy: `http://localhost:11435`
 
-Point clients at `http://localhost:11435` instead of `http://localhost:11434`.
+Point clients at `http://localhost:11435` instead of `http://localhost:11434` for the paths below. The proxy is an allowlist, not a full mirror of Ollama — anything else returns `404`.
+
+## Proxy endpoints
+
+Paths must match exactly (for example, `GET /v1/models/llama3.2:latest` is not proxied).
+
+### Usage tracked
+
+These are forwarded to `OLLAMA_BASE_URL` and recorded in the dashboard:
+
+| Path | Methods |
+|------|---------|
+| `/api/chat` | `POST` |
+| `/api/generate` | `POST` |
+| `/v1/chat/completions` | `POST` |
+| `/v1/completions` | `POST` |
+
+### Passthrough (not tracked)
+
+Forwarded to Ollama with no usage row written:
+
+| Path | Methods |
+|------|---------|
+| `/v1/models` | `GET` |
+
+### Not proxied
+
+Other Ollama APIs are blocked by the proxy, including:
+
+- Native: `/api/tags`, `/api/embed`, `/api/show`, `/api/pull`, `/api/push`, `/api/create`, `/api/copy`, `/api/delete`, `/api/ps`, `/api/version`
+- OpenAI-compatible: `/v1/embeddings`, `/v1/responses`, `/v1/images/generations`, `/v1/models/{model}`
+
+Use `OLLAMA_BASE_URL` (port `11434` by default) directly for embeddings, model management, native model listing (`GET /api/tags`), and other admin or discovery calls.
 
 ## What It Tracks
 
-- Requests to `/api/chat`, `/api/generate`, `/v1/chat/completions`, and `/v1/completions` (usage tracked)
-- Passthrough for `GET /v1/models` (model list for OpenAI-compatible clients; not tracked)
+For the usage-tracked paths above, OllamaScope records:
+
 - Prompt, completion, and total tokens when Ollama returns token counts
 - Duration and tokens per second
 - Streaming and non-streaming requests
