@@ -1,7 +1,6 @@
 services:
   ollamascope:
-    build: .
-    image: ollamascope
+    image: elgwhoppo/ollamascope:latest
     container_name: ollamascope
     restart: unless-stopped
     cpus: "0.50"
