@@ -10,7 +10,10 @@
     "build": "next build",
     "start": "NODE_ENV=production node server.js",
     "lint": "next lint",
-    "docker:build": "bash scripts/docker-build.sh"
+    "docker:build": "bash scripts/docker-build.sh",
+    "docker:dev": "bash scripts/docker-dev.sh build",
+    "docker:run": "bash scripts/docker-dev.sh run",
+    "docker:stop": "bash scripts/docker-dev.sh stop"
   },
   "dependencies": {
     "clsx": "^2.1.1",

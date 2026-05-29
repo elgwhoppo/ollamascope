@@ -17,20 +17,19 @@ docker build -t "$IMAGE" .
 echo ""
 echo "Build complete: ${IMAGE}"
 echo ""
-echo "Push this image:"
-echo "  docker push ${IMAGE}"
+echo "Publish (tag version + latest, then push both):"
+echo "  docker tag ${IMAGE} ${IMAGE_NAME}:1.0.1"
+echo "  docker tag ${IMAGE} ${IMAGE_NAME}:latest"
+echo "  docker push ${IMAGE_NAME}:1.0.1"
+echo "  docker push ${IMAGE_NAME}:latest"
 echo ""
-
-if [[ "$IMAGE_TAG" == "latest" ]]; then
-  echo "Tag a release version (e.g. 1.0.1) from this build:"
-  echo "  docker tag ${IMAGE} ${IMAGE_NAME}:1.0.1"
-  echo "  docker push ${IMAGE_NAME}:1.0.1"
-else
-  echo "Also publish as latest:"
-  echo "  docker tag ${IMAGE} ${IMAGE_NAME}:latest"
-  echo "  docker push ${IMAGE_NAME}:latest"
-fi
+echo "Push only the image you built (${IMAGE}):"
+echo "  docker push ${IMAGE}"
 
 echo ""
 echo "Build with a version tag directly:"
 echo "  IMAGE=${IMAGE_NAME}:1.0.1 npm run docker:build"
+echo ""
+echo "Run locally for dev testing:"
+echo "  ./scripts/docker-dev.sh build"
+echo "  ./scripts/docker-dev.sh run"

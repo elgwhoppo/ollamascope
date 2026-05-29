@@ -52,17 +52,32 @@ For the usage-tracked paths above, OllamaScope records:
 
 ## Start
 
-For an existing Ollama server, set `OLLAMA_BASE_URL` in `.env`:
+Copy `.env.example` to `.env` and set `OLLAMA_BASE_URL` if Ollama is not on the Docker host default (`http://host.docker.internal:11434`).
 
-```env
-OLLAMA_BASE_URL=http://10.0.0.10:11434
-```
-
-Then start OllamaScope:
+### Run a published image
 
 ```bash
-docker compose up -d
+docker pull elgwhoppo/ollamascope:latest
+./scripts/docker-dev.sh run
 ```
+
+### Local dev (build from source + run)
+
+After changing code, rebuild and start a dev container with SQLite in `./data`:
+
+```bash
+npm run docker:dev
+```
+
+Other helpers:
+
+```bash
+npm run docker:run    # start from IMAGE (default :latest), no rebuild
+npm run docker:stop   # stop the dev container
+./scripts/docker-dev.sh logs
+```
+
+Use a specific tag: `IMAGE=elgwhoppo/ollamascope:1.0.1 ./scripts/docker-dev.sh run`
 
 Open the dashboard:
 
@@ -109,7 +124,7 @@ If a model has no mapping or no imported price, the request is still tracked and
 
 ## SQLite
 
-SQLite is stored in the `ollamascope-data` Docker volume by default.
+SQLite is stored in `./data` when using `./scripts/docker-dev.sh` (gitignored).
 
 Tables:
 
