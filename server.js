@@ -14,8 +14,6 @@ const trackedEndpoints = new Set([
   "/v1/chat/completions",
   "/v1/completions"
 ]);
-const passthroughEndpoints = new Set(["/v1/models"]);
-const supportedEndpoints = new Set([...trackedEndpoints, ...passthroughEndpoints]);
 
 const app = next({ dev, hostname: "0.0.0.0", port: appPort });
 const handle = app.getRequestHandler();
@@ -70,11 +68,7 @@ function finalPayloadFromStream(text) {
 async function proxyRequest(req, res) {
   const startedAt = Date.now();
   const url = new URL(req.url || "/", `http://${req.headers.host || "localhost"}`);
-  if (!supportedEndpoints.has(url.pathname)) {
-    res.writeHead(404, { "content-type": "application/json" });
-    res.end(JSON.stringify({ error: "Unsupported OllamaScope proxy endpoint" }));
-    return;
-  }
+  const trackUsage = trackedEndpoints.has(url.pathname);
 
   const bodyBuffer = await readRequestBody(req);
   const requestBody = parseJson(bodyBuffer);
@@ -106,12 +100,18 @@ async function proxyRequest(req, res) {
       const { done, value } = await reader.read();
       if (done) break;
       const chunk = Buffer.from(value);
-      chunks.push(chunk);
+      if (trackUsage) {
+        chunks.push(chunk);
+      }
       res.write(chunk);
     }
   }
 
   res.end();
+
+  if (!trackUsage) {
+    return;
+  }
 
   const responseText = Buffer.concat(chunks).toString("utf8");
   if (contentType.includes("application/json") && !responseText.includes("\n")) {
@@ -124,10 +124,6 @@ async function proxyRequest(req, res) {
     requestBody?.stream === true ||
     contentType.includes("text/event-stream") ||
     responseText.split(/\r?\n/).filter(Boolean).length > 1;
-
-  if (!trackedEndpoints.has(url.pathname)) {
-    return;
-  }
 
   try {
     recordUsage({
