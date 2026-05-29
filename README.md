@@ -1,3 +1,5 @@
+![OllamaScope dashboard](images/example.png)
+
 # OllamaScope
 
 OllamaScope is a small self-hosted proxy and dashboard for Ollama usage.
