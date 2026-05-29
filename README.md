@@ -40,47 +40,37 @@ For the usage-tracked paths above, OllamaScope records:
 - Streaming and non-streaming requests
 - Estimated cloud-equivalent cost from OpenRouter pricing snapshots
 
-## Start
-
-Copy `.env.example` to `.env` and set `OLLAMA_BASE_URL` if Ollama is not on the Docker host default (`http://host.docker.internal:11434`).
-
-### Run a published image
+## Install
 
 ```bash
-docker pull elgwhoppo/ollamascope:latest
-./scripts/docker-dev.sh run
+cp .env.example .env
+# Edit .env — set OLLAMA_BASE_URL if Ollama is not on the host (default: http://host.docker.internal:11434)
+docker compose up -d
 ```
 
-### Local dev (build from source + run)
+Dashboard: `http://localhost:3000` · Proxy: `http://localhost:11435`
 
-After changing code, rebuild and start a dev container with SQLite in `./data`:
+Example `.env`:
 
-```bash
-npm run docker:dev
+```env
+APP_PORT=3000
+PROXY_PORT=11435
+APP_HOST=0.0.0.0
+OLLAMA_BASE_URL=http://host.docker.internal:11434
+DATA_DIR=/data
+DATABASE_PATH=/data/ollamascope.sqlite
 ```
 
-Other helpers:
+Ollama on the Docker host (default):
 
-```bash
-npm run docker:run    # start from IMAGE (default :latest), no rebuild
-npm run docker:stop   # stop the dev container
-./scripts/docker-dev.sh logs
+```env
+OLLAMA_BASE_URL=http://host.docker.internal:11434
 ```
 
-Use a specific tag: `IMAGE=elgwhoppo/ollamascope:1.0.1 ./scripts/docker-dev.sh run`
+Ollama on another machine:
 
-Open the dashboard:
-
-```text
-http://localhost:3000
-```
-
-Use the proxy:
-
-```bash
-curl http://localhost:11435/api/generate \
-  -H "content-type: application/json" \
-  -d '{"model":"llama3.2:latest","prompt":"hello","stream":false}'
+```env
+OLLAMA_BASE_URL=http://10.0.0.10:11434
 ```
 
 ## Pricing
@@ -114,35 +104,4 @@ If a model has no mapping or no imported price, the request is still tracked and
 
 ## SQLite
 
-SQLite is stored in `./data` when using `./scripts/docker-dev.sh` (gitignored).
-
-Tables:
-
-- `usage_events`
-- `price_snapshots`
-- `model_mappings`
-
-## Configuration
-
-Copy `.env.example` if you want local environment overrides.
-
-```env
-APP_PORT=3000
-PROXY_PORT=11435
-APP_HOST=0.0.0.0
-OLLAMA_BASE_URL=http://host.docker.internal:11434
-DATA_DIR=/data
-DATABASE_PATH=/data/ollamascope.sqlite
-```
-
-For an existing Ollama instance on the host, use:
-
-```env
-OLLAMA_BASE_URL=http://host.docker.internal:11434
-```
-
-For an existing Ollama instance on another machine, use:
-
-```env
-OLLAMA_BASE_URL=http://10.0.0.10:11434
-```
+Data is stored in the `ollamascope-data` Docker volume (`usage_events`, `price_snapshots`, `model_mappings`).
